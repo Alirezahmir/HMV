@@ -238,7 +238,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         else -> super.onOptionsItemSelected(item)
     }
 
-    private fun importConfigViaSub(): Boolean {
+    internal fun importConfigViaSub(): Boolean {
         showLoading()
 
         lifecycleScope.launch(Dispatchers.IO) {
