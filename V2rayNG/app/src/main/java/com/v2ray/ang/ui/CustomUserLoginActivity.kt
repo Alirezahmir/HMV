@@ -8,8 +8,8 @@ import com.v2ray.ang.R
 import com.v2ray.ang.databinding.ActivityCustomUserLoginBinding
 import com.v2ray.ang.extension.toast
 import com.v2ray.ang.handler.MmkvManager
-import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.CustomSubscriptionHelper
+import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.dto.TestServiceMessage
 import kotlinx.coroutines.Dispatchers
@@ -63,31 +63,30 @@ class CustomUserLoginActivity : HelperBaseActivity() {
     }
 
     private fun initializeCustomMode(username: String) {
-        // Show loading
         val progressDialog = AlertDialog.Builder(this)
-            .setMessage(R.string.toast_loading)
+            .setMessage(R.string.toast_validating)
             .setCancelable(false)
             .show()
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // Set custom username
+                if (!CustomSubscriptionHelper.isUsernameValid(username)) {
+                    withContext(Dispatchers.Main) {
+                        progressDialog.dismiss()
+                        toast(R.string.toast_username_invalid)
+                    }
+                    return@launch
+                }
+
                 CustomSubscriptionHelper.setCustomUsername(username)
-                
-                // Initialize subscription
                 val subId = CustomSubscriptionHelper.initializeCustomSubscription(username)
-                
-                // Update configs from subscription
                 val updateSuccess = CustomSubscriptionHelper.updateCustomSubscription(subId)
-                
-                // Set the subscription as the current one
                 MmkvManager.encodeSettings(AppConfig.CACHE_SUBSCRIPTION_ID, subId)
-                
+
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
                     if (updateSuccess) {
                         toast(R.string.toast_success)
-                        // Trigger auto-ping and sort
                         startAutoPingAndSort(subId)
                     } else {
                         toast(R.string.toast_failure)
@@ -98,7 +97,6 @@ class CustomUserLoginActivity : HelperBaseActivity() {
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
                     toast(R.string.toast_failure)
-                    e.printStackTrace()
                 }
             }
         }

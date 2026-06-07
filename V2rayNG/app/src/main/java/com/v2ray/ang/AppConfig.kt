@@ -85,6 +85,7 @@ object AppConfig {
     const val PREF_FREE_SUBSCRIPTION_ID = "pref_free_subscription_id"
     const val PREF_PAID_SUBSCRIPTION_ID = "pref_paid_subscription_id"
     const val CUSTOM_SUBSCRIPTION_BASE_URL = "https://github.com/hmalirez/Page/blob/main"
+    const val CUSTOM_SUBSCRIPTION_MASTER_LIST_URL = "https://raw.githubusercontent.com/hmalirez/Page/main/user_list.txt"
 
     /** Cache keys. */
     const val CACHE_SUBSCRIPTION_ID = "cache_subscription_id"

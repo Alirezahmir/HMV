@@ -481,6 +481,8 @@
     <string name="title_enter_username">Enter Username</string>
     <string name="hint_enter_username">Username</string>
     <string name="toast_username_empty">Username cannot be empty</string>
+    <string name="toast_username_invalid">Invalid username or username not found</string>
+    <string name="toast_validating">Validating username...</string>
     <string name="toast_loading">Loading...</string>
 
     <!-- Free group name -->

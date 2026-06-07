@@ -5,100 +5,61 @@ import com.v2ray.ang.dto.entities.SubscriptionItem
 import com.v2ray.ang.handler.AngConfigManager
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.util.LogUtil
+import java.net.HttpURLConnection
+import java.net.URL
 
-/**
- * Helper class for managing custom subscriptions with usernames
- */
 object CustomSubscriptionHelper {
 
-    /**
-     * Gets the subscription URL for a given username
-     * @param username The username to build the subscription URL for
-     * @return The complete subscription URL
-     */
+    private const val MASTER_LIST_CACHE_DURATION = 24 * 60 * 60 * 1000L // 24 hours in milliseconds
+
     fun getSubscriptionUrl(username: String): String {
         return "${AppConfig.CUSTOM_SUBSCRIPTION_BASE_URL}/$username.txt"
     }
 
-    /**
-     * Gets the free subscription URL
-     * @return The free subscription URL
-     */
     fun getFreeSubscriptionUrl(): String {
         return "${AppConfig.CUSTOM_SUBSCRIPTION_BASE_URL}/free.txt"
     }
 
-    /**
-     * Checks if the app is using custom user mode
-     * @return True if using custom user mode
-     */
+    fun getMasterListUrl(): String {
+        return AppConfig.CUSTOM_SUBSCRIPTION_MASTER_LIST_URL
+    }
+
     fun isCustomUserMode(): Boolean {
         return MmkvManager.decodeSettingsBool(AppConfig.PREF_IS_CUSTOM_USER, false)
     }
 
-    /**
-     * Gets the current custom username
-     * @return The custom username, or empty string if not set
-     */
     fun getCustomUsername(): String {
         return MmkvManager.decodeSettingsString(AppConfig.PREF_CUSTOM_USERNAME).orEmpty()
     }
 
-    /**
-     * Sets the custom username and marks the app as using custom user mode
-     * @param username The username to set
-     */
     fun setCustomUsername(username: String) {
         MmkvManager.encodeSettings(AppConfig.PREF_CUSTOM_USERNAME, username)
         MmkvManager.encodeSettings(AppConfig.PREF_IS_CUSTOM_USER, true)
     }
 
-    /**
-     * Switches to free mode
-     */
     fun switchToFreeMode() {
         MmkvManager.encodeSettings(AppConfig.PREF_IS_CUSTOM_USER, false)
         MmkvManager.encodeSettings(AppConfig.PREF_CUSTOM_USERNAME, "")
     }
 
-    /**
-     * Gets the free subscription ID
-     * @return The free subscription ID
-     */
     fun getFreeSubscriptionId(): String {
         return MmkvManager.decodeSettingsString(AppConfig.PREF_FREE_SUBSCRIPTION_ID) ?: "free"
     }
 
-    /**
-     * Sets the free subscription ID
-     * @param id The subscription ID
-     */
     fun setFreeSubscriptionId(id: String) {
         MmkvManager.encodeSettings(AppConfig.PREF_FREE_SUBSCRIPTION_ID, id)
     }
 
-    /**
-     * Gets the paid subscription ID for the current username
-     * @return The paid subscription ID
-     */
     fun getPaidSubscriptionId(): String {
         val username = getCustomUsername()
         return MmkvManager.decodeSettingsString(AppConfig.PREF_PAID_SUBSCRIPTION_ID + "_$username") ?: username
     }
 
-    /**
-     * Sets the paid subscription ID
-     * @param id The subscription ID
-     */
     fun setPaidSubscriptionId(id: String) {
         val username = getCustomUsername()
         MmkvManager.encodeSettings(AppConfig.PREF_PAID_SUBSCRIPTION_ID + "_$username", id)
     }
 
-    /**
-     * Creates and initializes the free subscription
-     * @return The subscription ID
-     */
     fun initializeFreeSubscription(): String {
         val freeSubId = getFreeSubscriptionId()
         val existingSubscription = MmkvManager.decodeSubscription(freeSubId)
@@ -116,11 +77,50 @@ object CustomSubscriptionHelper {
         return freeSubId
     }
 
-    /**
-     * Creates and initializes the custom user subscription
-     * @param username The username to create subscription for
-     * @return The subscription ID
-     */
+    fun isUsernameValid(username: String): Boolean {
+        return try {
+            val cacheKey = "master_list_cache_${System.currentTimeMillis() / MASTER_LIST_CACHE_DURATION}"
+            val cachedLines = MmkvManager.decodeSettingsString(cacheKey)
+            val validLines = if (!cachedLines.isNullOrEmpty()) {
+                cachedLines.split("\n")
+            } else {
+                val masterListContent = fetchMasterList()
+                if (masterListContent != null) {
+                    MmkvManager.encodeSettings(cacheKey, masterListContent)
+                    masterListContent.split("\n")
+                } else {
+                    return false
+                }
+            }
+            
+            val normalizedUsername = username.trim().lowercase()
+            validLines.any { line ->
+                val lineUsername = line.trim().lowercase()
+                lineUsername == normalizedUsername || 
+                lineUsername.startsWith("$normalizedUsername.") ||
+                lineUsername.startsWith("$normalizedUsername/")
+            }
+        } catch (e: Exception) {
+            LogUtil.e(AppConfig.TAG, "Failed to validate username: $username", e)
+            false
+        }
+    }
+
+    private fun fetchMasterList(): String? {
+        return try {
+            val url = URL(getMasterListUrl())
+            val connection = (url.openConnection() as HttpURLConnection).apply {
+                connectTimeout = 10000
+                readTimeout = 10000
+                requestMethod = "GET"
+            }
+            connection.inputStream.bufferedReader().use { it.readText() }
+        } catch (e: Exception) {
+            LogUtil.e(AppConfig.TAG, "Failed to fetch master list", e)
+            null
+        }
+    }
+
     fun initializeCustomSubscription(username: String): String {
         val subId = username
         val existingSubscription = MmkvManager.decodeSubscription(subId)
@@ -139,11 +139,6 @@ object CustomSubscriptionHelper {
         return subId
     }
 
-    /**
-     * Updates and loads configs from the custom subscription
-     * @param subId The subscription ID to update
-     * @return True if update was successful
-     */
     fun updateCustomSubscription(subId: String): Boolean {
         try {
             val subItem = MmkvManager.decodeSubscription(subId) ?: return false
