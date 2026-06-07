@@ -263,7 +263,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         val groups = mutableListOf<GroupMapItem>()
-        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_GROUP_ALL_DISPLAY)) {
+        
+        // Only show "all groups" option if not in custom user mode
+        val isCustomUserMode = MmkvManager.decodeSettingsBool(com.v2ray.ang.AppConfig.PREF_IS_CUSTOM_USER, false)
+        if (!isCustomUserMode && MmkvManager.decodeSettingsBool(AppConfig.PREF_GROUP_ALL_DISPLAY)) {
             groups.add(
                 GroupMapItem(
                     id = "",

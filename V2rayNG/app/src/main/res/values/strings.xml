@@ -473,4 +473,14 @@
         <item>WebDAV</item>
     </string-array>
 
+    <!-- Custom User Login Strings -->
+    <string name="title_custom_user_login">Custom User</string>
+    <string name="text_welcome">Welcome to Custom V2rayNG</string>
+    <string name="btn_sign_up">Sign Up</string>
+    <string name="btn_free">Free Version</string>
+    <string name="title_enter_username">Enter Username</string>
+    <string name="hint_enter_username">Username</string>
+    <string name="toast_username_empty">Username cannot be empty</string>
+    <string name="toast_loading">Loading...</string>
+
 </resources>

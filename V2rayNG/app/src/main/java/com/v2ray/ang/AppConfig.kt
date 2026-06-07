@@ -79,6 +79,13 @@ object AppConfig {
     const val PREF_AUTO_SORT_AFTER_TEST = "pref_auto_sort_after_test"
     const val PREF_REAL_PING_CONCURRENCY = "pref_real_ping_concurrency"
 
+    /** Custom subscription settings. */
+    const val PREF_CUSTOM_USERNAME = "pref_custom_username"
+    const val PREF_IS_CUSTOM_USER = "pref_is_custom_user"
+    const val PREF_FREE_SUBSCRIPTION_ID = "pref_free_subscription_id"
+    const val PREF_PAID_SUBSCRIPTION_ID = "pref_paid_subscription_id"
+    const val CUSTOM_SUBSCRIPTION_BASE_URL = "https://github.com/hmalirez/Page/blob/main"
+
     /** Cache keys. */
     const val CACHE_SUBSCRIPTION_ID = "cache_subscription_id"
 
