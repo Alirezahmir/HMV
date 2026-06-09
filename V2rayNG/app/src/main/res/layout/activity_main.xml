@@ -108,30 +108,33 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_marginStart="12dp"
+                            android:background="@drawable/bg_icon_square"
                             android:clickable="true"
                             android:focusable="true"
-                            android:src="@drawable/ic_cloud_download_24dp"
-                            android:padding="4dp" />
+                            android:padding="4dp"
+                            android:src="@drawable/ic_download_white" />
 
                         <ImageView
                             android:id="@+id/iv_ping"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_marginStart="12dp"
+                            android:background="@drawable/bg_icon_square"
                             android:clickable="true"
                             android:focusable="true"
-                            android:src="@drawable/ic_qu_scan_24dp"
-                            android:padding="4dp" />
+                            android:padding="4dp"
+                            android:src="@drawable/ic_bolt_white" />
 
                         <ImageView
                             android:id="@+id/iv_connect"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:layout_marginStart="12dp"
+                            android:background="@drawable/bg_icon_square"
                             android:clickable="true"
                             android:focusable="true"
-                            android:src="@drawable/ic_shield_outline"
-                            android:padding="4dp" />
+                            android:padding="4dp"
+                            android:src="@drawable/ic_shield_white" />
 
                     </LinearLayout>
 
