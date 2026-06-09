@@ -512,6 +512,8 @@ object SettingsManager {
         ensureDefaultValue(AppConfig.PREF_MUX_XUDP_CONCURRENCY, "8")
         ensureDefaultValue(AppConfig.PREF_FRAGMENT_LENGTH, "50-100")
         ensureDefaultValue(AppConfig.PREF_FRAGMENT_INTERVAL, "10-20")
+        ensureDefaultValue(AppConfig.PREF_AUTO_SORT_AFTER_TEST, "1")
+        ensureDefaultValue(AppConfig.PREF_AUTO_PING_AFTER_LOAD, "1")
     }
 
     private fun ensureDefaultValue(key: String, default: String) {

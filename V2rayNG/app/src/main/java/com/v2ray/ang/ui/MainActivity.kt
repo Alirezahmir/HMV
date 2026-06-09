@@ -109,6 +109,9 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         SubscriptionUpdater.sync()
         mainViewModel.reloadServerList()
         updateSubscriptionsOnOpen()
+        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_PING_AFTER_LOAD)) {
+            mainViewModel.testAllRealPing()
+        }
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
         }

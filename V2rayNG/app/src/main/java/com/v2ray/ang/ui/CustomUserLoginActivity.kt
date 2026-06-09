@@ -10,17 +10,11 @@ import com.v2ray.ang.extension.toast
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.util.CustomSubscriptionHelper
-import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.AppConfig
-import com.v2ray.ang.dto.TestServiceMessage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * Activity for custom user login/registration on first launch
- */
 class CustomUserLoginActivity : HelperBaseActivity() {
     private val binding by lazy {
         ActivityCustomUserLoginBinding.inflate(layoutInflater)
@@ -86,25 +80,20 @@ class CustomUserLoginActivity : HelperBaseActivity() {
 
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
-                    if (updateSuccess) {
-                        toast(R.string.toast_success)
-                        startAutoPingAndSort(subId)
-                    } else {
-                        toast(R.string.toast_failure)
-                        navigateToMain()
-                    }
+                    toast(R.string.toast_success)
+                    navigateToMain()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
                     toast(R.string.toast_failure)
+                    navigateToMain()
                 }
             }
         }
     }
 
     private fun initializeFreeMode() {
-        // Show loading
         val progressDialog = AlertDialog.Builder(this)
             .setMessage(R.string.toast_loading)
             .setCancelable(false)
@@ -112,33 +101,21 @@ class CustomUserLoginActivity : HelperBaseActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // Set free mode
                 CustomSubscriptionHelper.switchToFreeMode()
-                
-                // Initialize free subscription
                 val freeSubId = CustomSubscriptionHelper.initializeFreeSubscription()
-                
-                // Update configs from free subscription
                 val updateSuccess = CustomSubscriptionHelper.updateCustomSubscription(freeSubId)
-                
-                // Set the subscription as the current one
                 MmkvManager.encodeSettings(AppConfig.CACHE_SUBSCRIPTION_ID, freeSubId)
-                
+
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
-                    if (updateSuccess) {
-                        toast(R.string.toast_success)
-                        // Trigger auto-ping and sort
-                        startAutoPingAndSort(freeSubId)
-                    } else {
-                        toast(R.string.toast_failure)
-                        navigateToMain()
-                    }
+                    toast(R.string.toast_success)
+                    navigateToMain()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
                     toast(R.string.toast_failure)
+<<<<<<< HEAD
                     e.printStackTrace()
                 }
             }
@@ -182,6 +159,8 @@ class CustomUserLoginActivity : HelperBaseActivity() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+=======
+>>>>>>> c4afd99e (updated)
                     navigateToMain()
                 }
             }

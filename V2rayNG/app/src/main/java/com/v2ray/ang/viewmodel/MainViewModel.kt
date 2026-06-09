@@ -213,10 +213,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             TestServiceMessage(key = AppConfig.MSG_MEASURE_CONFIG_CANCEL)
         )
         MmkvManager.clearAllTestDelayResults(serversCache.map { it.guid }.toList())
+
+        val allGuids = MmkvManager.decodeAllServerList()
+        MmkvManager.clearAllTestDelayResults(allGuids)
+
         updateListAction.value = -1
 
         viewModelScope.launch(Dispatchers.Default) {
-            if (serversCache.isEmpty()) {
+            if (allGuids.isEmpty()) {
                 return@launch
             }
             MessageUtil.sendMsg2TestService(
@@ -224,7 +228,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 TestServiceMessage(
                     key = AppConfig.MSG_MEASURE_CONFIG_START,
                     subscriptionId = subscriptionId,
-                    serverGuids = if (keywordFilter.isNotEmpty()) serversCache.map { it.guid } else emptyList()
+                    serverGuids = emptyList()
                 )
             )
         }
