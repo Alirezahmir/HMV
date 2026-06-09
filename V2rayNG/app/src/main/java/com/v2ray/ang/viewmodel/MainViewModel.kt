@@ -265,12 +265,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val groups = mutableListOf<GroupMapItem>()
 
         subscriptions.forEach { sub ->
-            groups.add(
-                GroupMapItem(
-                    id = sub.guid,
-                    remarks = sub.subscription.remarks
+            if (sub.guid != AppConfig.DEFAULT_SUBSCRIPTION_ID) {
+                groups.add(
+                    GroupMapItem(
+                        id = sub.guid,
+                        remarks = sub.subscription.remarks
+                    )
                 )
-            )
+            }
         }
         return groups
     }

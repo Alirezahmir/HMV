@@ -22,12 +22,14 @@ import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.databinding.ActivityMainBinding
+import com.v2ray.ang.dto.entities.SubscriptionCache
 import com.v2ray.ang.enums.PermissionType
 import com.v2ray.ang.extension.toast
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.handler.SubscriptionUpdater
+import com.v2ray.ang.handler.AngConfigManager
 import com.v2ray.ang.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -106,6 +108,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         setupViewModel()
         SubscriptionUpdater.sync()
         mainViewModel.reloadServerList()
+        updateSubscriptionsOnOpen()
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
         }
@@ -132,7 +135,11 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             }
         }.also { it.attach() }
 
-        val targetIndex = groups.indexOfFirst { it.id == mainViewModel.subscriptionId }.takeIf { it >= 0 } ?: (groups.size - 1)
+        val targetIndex = if (groups.isEmpty()) {
+            0
+        } else {
+            groups.indexOfFirst { it.id == mainViewModel.subscriptionId }.takeIf { it >= 0 } ?: (groups.size - 1)
+        }
         binding.viewPager.setCurrentItem(targetIndex, false)
 
         binding.tabGroup.isVisible = groups.size > 1
@@ -286,6 +293,29 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 true
             }
             else -> false
+        }
+    }
+
+    private fun updateSubscriptionsOnOpen() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val subscriptions = MmkvManager.decodeSubscriptions()
+            var updatedAny = false
+            for (sub in subscriptions) {
+                val subId = sub.guid
+                val subItem = MmkvManager.decodeSubscription(subId) ?: continue
+                if (!subItem.enabled) continue
+                if (subId == AppConfig.DEFAULT_SUBSCRIPTION_ID) continue
+                if (subItem.url.isNullOrEmpty()) continue
+                val result = AngConfigManager.updateConfigViaSub(com.v2ray.ang.dto.entities.SubscriptionCache(subId, subItem))
+                if (result.configCount > 0) {
+                    updatedAny = true
+                }
+            }
+            launch(Dispatchers.Main) {
+                if (updatedAny) {
+                    mainViewModel.reloadServerList()
+                }
+            }
         }
     }
 

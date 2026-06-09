@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">v2rayNG</string>
+    <string name="app_name" translatable="false">IraNTun</string>
     <string name="app_widget_name">Switch</string>
     <string name="app_tile_name">Switch</string>
     <string name="app_tile_first_use">First use of this feature, please use the app to add server</string>
@@ -22,7 +22,7 @@
     <string name="toast_services_failure">Start Services Failure</string>
 
     <!--ServerActivity-->
-    <string name="title_server">Config</string>
+    <string name="title_server">IraNTun - IranNet</string>
     <string name="menu_item_add_config">Add config</string>
     <string name="menu_item_save_config">Save config</string>
     <string name="menu_item_edit_config">Edit config</string>
@@ -475,7 +475,7 @@
 
     <!-- Custom User Login Strings -->
     <string name="title_custom_user_login">Custom User</string>
-    <string name="text_welcome">Welcome to Custom V2rayNG</string>
+    <string name="text_welcome">Welcome to IraNTun</string>
     <string name="btn_sign_up">Sign Up</string>
     <string name="btn_free">Free Version</string>
     <string name="title_enter_username">Enter Username</string>

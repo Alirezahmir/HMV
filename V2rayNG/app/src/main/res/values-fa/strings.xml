@@ -21,7 +21,7 @@
     <string name="toast_services_failure">شروع خدمات با موفقیت انجام نشد!</string>
 
     <!--ServerActivity-->
-    <string name="title_server">فایل کانفیگ</string>
+    <string name="title_server">IraNTun - ایران‌تونل</string>
     <string name="menu_item_add_config">افزودن کانفیگ</string>
     <string name="menu_item_save_config">ذخیره کانفیگ</string>
     <string name="menu_item_edit_config">ویرایش کردن کانفیگ</string>

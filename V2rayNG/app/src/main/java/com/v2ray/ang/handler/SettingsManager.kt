@@ -42,7 +42,6 @@ object SettingsManager {
 
     fun initApp(context: Context) {
         ensureDefaultSettings()
-        //ensureDefaultSubscription()
         initRoutingRulesets(context)
         migrateServerListToSubscriptions()
         migrateHysteria2PinSHA256()
@@ -261,25 +260,11 @@ object SettingsManager {
     }
 
     /**
-     * Removes the subscription.
-     * If there are no remaining subscriptions,
-     * it creates a new default subscription to ensure that ungroup
-     **/
+     * Removes a subscription without recreating a default one.
+     */
     fun removeSubscriptionWithDefault(subid: String) {
         SubscriptionUpdater.cancelOne(subId = subid)
-        // Remove the subscription
         removeSubscription(subid)
-
-        // After removal, check if there are any subscriptions left. If not, create a default subscription.
-        val subsList2 = decodeSubsList()
-        if (subsList2.isNotEmpty()) {
-            return
-        }
-
-        val defaultSub = SubscriptionItem(
-            remarks = "Default",
-        )
-        encodeSubscription(DEFAULT_SUBSCRIPTION_ID, defaultSub)
     }
 
     /**
@@ -610,24 +595,42 @@ object SettingsManager {
         MmkvManager.encodeSettings(migrationKey, true)
     }
 
+    private fun migrateDefaultSubscription() {
+        val migrationKey = "default_subscription_migrated"
+        if (MmkvManager.decodeSettingsBool(migrationKey, false)) {
+            return
+        }
+
+        val defaultSub = MmkvManager.decodeSubscription(DEFAULT_SUBSCRIPTION_ID)
+        if (defaultSub == null) {
+            MmkvManager.encodeSettings(migrationKey, true)
+            return
+        }
+
+        val updatedSub = defaultSub.copy(remarks = "Default")
+        MmkvManager.encodeSubscription(DEFAULT_SUBSCRIPTION_ID, updatedSub)
+
+        MmkvManager.encodeSettings(migrationKey, true)
+    }
+
     /**
      * Ensures the default subscription exists for ungrouped servers.
      * This subscription is used internally to store servers without a subscription.
-     * Made public for migration in SettingsManager.
+     Made public for migration in SettingsManager.
      */
     private fun ensureDefaultSubscription() {
-        if (decodeSubscription(DEFAULT_SUBSCRIPTION_ID) == null) {
+        if (decodeSubscription(AppConfig.DEFAULT_SUBSCRIPTION_ID) == null) {
             val defaultSub = SubscriptionItem(
                 remarks = "Default",
             )
-            encodeSubscription(DEFAULT_SUBSCRIPTION_ID, defaultSub)
+            encodeSubscription(AppConfig.DEFAULT_SUBSCRIPTION_ID, defaultSub)
 
-            // Move top
             val subsList = decodeSubsList()
             if (subsList.count() > 1) {
                 swapSubscriptions(0, subsList.count() - 1)
             }
         }
     }
+}
 
 }

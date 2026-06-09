@@ -17,7 +17,7 @@ object CustomSubscriptionHelper {
     }
 
     fun getFreeSubscriptionUrl(): String {
-        return "${AppConfig.CUSTOM_SUBSCRIPTION_BASE_URL}/free.txt"
+        return "${AppConfig.CUSTOM_SUBSCRIPTION_BASE_URL}/HardcodedFree.txt"
     }
 
     fun getMasterListUrl(): String {
