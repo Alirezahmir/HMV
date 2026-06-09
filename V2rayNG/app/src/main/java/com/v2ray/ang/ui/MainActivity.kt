@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -162,12 +161,21 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    private fun handleLayoutTestClick() {
+    private fun handleStatusClick() {
         if (mainViewModel.isRunning.value == true) {
             setTestState(getString(R.string.connection_test_testing))
             mainViewModel.testCurrentServerRealPing()
         } else {
-            // service not running: keep existing no-op (could show a message if desired)
+            // service not running: keep existing no-op
+        }
+    }
+
+    private fun handlePingClick() {
+        if (mainViewModel.isRunning.value == true) {
+            setTestState(getString(R.string.connection_test_testing))
+            mainViewModel.testCurrentServerRealPing()
+        } else {
+            mainViewModel.testAllRealPing()
         }
     }
 
@@ -224,74 +232,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-
-        val searchItem = menu.findItem(R.id.search_view)
-        if (searchItem != null) {
-            val searchView = searchItem.actionView as SearchView
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean = false
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    mainViewModel.filterConfig(newText.orEmpty())
-                    return false
-                }
-            })
-
-            searchView.setOnCloseListener {
-                mainViewModel.filterConfig("")
-                false
-            }
-        }
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.sub_update -> {
-            importConfigViaSub()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
-    }
-
-    internal fun importConfigViaSub(): Boolean {
-        showLoading()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            val result = mainViewModel.updateConfigViaSubAll()
-            delay(500L)
-            launch(Dispatchers.Main) {
-                if (result.successCount + result.failureCount + result.skipCount == 0) {
-                    toast(R.string.title_update_subscription_no_subscription)
-                } else if (result.successCount > 0 && result.failureCount + result.skipCount == 0) {
-                    toast(getString(R.string.title_update_config_count, result.configCount))
-                } else {
-                    toast(
-                        getString(
-                            R.string.title_update_subscription_result,
-                            result.configCount, result.successCount, result.failureCount, result.skipCount
-                        )
-                    )
-                }
-                if (result.configCount > 0) {
-                    mainViewModel.reloadServerList()
-                    mainViewModel.testAllRealPing()
-                }
-                hideLoading()
-            }
-        }
-        return true
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_BUTTON_B) {
-            moveTaskToBack(false)
-            return true
-        }
-        return super.onKeyDown(keyCode, event)
-    }
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return when (item.itemId) {
@@ -325,7 +265,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             }
         }
 
-        AlertDialog.Builder(this)
+        androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.title_enter_username)
             .setView(input)
             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -343,7 +283,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun initializeCustomModeFromMenu(username: String) {
-        val progressDialog = AlertDialog.Builder(this)
+        val progressDialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setMessage(R.string.toast_validating)
             .setCancelable(false)
             .show()
@@ -381,7 +321,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun initializeFreeModeFromMenu() {
-        val progressDialog = AlertDialog.Builder(this)
+        val progressDialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setMessage(R.string.toast_loading)
             .setCancelable(false)
             .show()
