@@ -607,7 +607,7 @@ object SettingsManager {
             return
         }
 
-        val updatedSub = defaultSub.copy(remarks = "Default")
+        val updatedSub = defaultSub.copy(remarks = "پیش‌فرض")
         MmkvManager.encodeSubscription(DEFAULT_SUBSCRIPTION_ID, updatedSub)
 
         MmkvManager.encodeSettings(migrationKey, true)
@@ -621,7 +621,7 @@ object SettingsManager {
     private fun ensureDefaultSubscription() {
         if (decodeSubscription(AppConfig.DEFAULT_SUBSCRIPTION_ID) == null) {
             val defaultSub = SubscriptionItem(
-                remarks = "Default",
+                remarks = "پیش‌فرض",
             )
             encodeSubscription(AppConfig.DEFAULT_SUBSCRIPTION_ID, defaultSub)
 
@@ -631,37 +631,4 @@ object SettingsManager {
             }
         }
     }
-}
-
-        val defaultSub = MmkvManager.decodeSubscription(DEFAULT_SUBSCRIPTION_ID)
-        if (defaultSub == null) {
-            MmkvManager.encodeSettings(migrationKey, true)
-            return
-        }
-
-        val updatedSub = defaultSub.copy(remarks = "Default")
-        MmkvManager.encodeSubscription(DEFAULT_SUBSCRIPTION_ID, updatedSub)
-
-        MmkvManager.encodeSettings(migrationKey, true)
-    }
-
-    /**
-     * Ensures the default subscription exists for ungrouped servers.
-     * This subscription is used internally to store servers without a subscription.
-     Made public for migration in SettingsManager.
-     */
-    private fun ensureDefaultSubscription() {
-        if (decodeSubscription(AppConfig.DEFAULT_SUBSCRIPTION_ID) == null) {
-            val defaultSub = SubscriptionItem(
-                remarks = "Default",
-            )
-            encodeSubscription(AppConfig.DEFAULT_SUBSCRIPTION_ID, defaultSub)
-
-            val subsList = decodeSubsList()
-            if (subsList.count() > 1) {
-                swapSubscriptions(0, subsList.count() - 1)
-    }
-}
-}
-
 }
