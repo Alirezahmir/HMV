@@ -38,13 +38,27 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("release/IravpnRelease.jks")
+            storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: "Iravpn2025Store"
+            keyAlias = System.getenv("SIGNING_KEY_ALIAS") ?: "IravpnReleaseKey"
+            keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: "Iravpn2025Key"
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

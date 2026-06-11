@@ -83,18 +83,26 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
 
-    - name: Build APK
+    - name: Prepare signing keystore
+      run: |
+        mkdir -p ${{ github.workspace }}/release
+        echo "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" | base64 -d > ${{ github.workspace }}/release/IravpnRelease.jks
+
+    - name: Build Release APK
       run: |
         cd ${{ github.workspace }}/V2rayNG
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
-        ./gradlew licenseFdroidReleaseReport
-        ./gradlew assembleFdroidDebug
+        ./gradlew assembleFdroidRelease
+      env:
+        SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+        SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+        SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
     
     - name: Prepare APK files
       run: |
         mkdir -p ${{ github.workspace }}/apk_output
-        find ${{ github.workspace }}/V2rayNG/app/build/outputs/apk -name "*.apk" -type f -exec cp {} ${{ github.workspace }}/apk_output/ \;
+        find ${{ github.workspace }}/V2rayNG/app/build/outputs/apk -name "*universal*.apk" -type f -exec cp {} ${{ github.workspace }}/apk_output/ \;
         ls -lah ${{ github.workspace }}/apk_output/
 
     - name: Create ZIP archive
