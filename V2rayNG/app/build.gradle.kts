@@ -10,6 +10,7 @@ plugins {
 android {
     namespace = "com.v2ray.ang"
     compileSdk = 37
+    ndkVersion = "29.0.14206865"
 
     defaultConfig {
         applicationId = "com.v2ray.ang"
