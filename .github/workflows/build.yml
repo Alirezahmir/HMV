@@ -1,5 +1,8 @@
 name: Build APK
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -94,29 +97,29 @@ jobs:
         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
     
-    - name: Prepare APK files
+    - name: Prepare universal APK file
       run: |
         mkdir -p ${{ github.workspace }}/apk_output
         find ${{ github.workspace }}/V2rayNG/app/build/outputs/apk -name "*universal*.apk" -type f -exec cp {} ${{ github.workspace }}/apk_output/ \;
-        ls -lah ${{ github.workspace }}/apk_output/
+        APK_FILE=$(find ${{ github.workspace }}/apk_output -maxdepth 1 -name "*universal*.apk" -type f | sort | head -n 1)
+        if [ -z "$APK_FILE" ]; then
+          echo "No universal APK found"
+          exit 1
+        fi
+        echo "APK_FILE=$APK_FILE" >> $GITHUB_ENV
+        ls -lah "$APK_FILE"
 
-    - name: Create ZIP archive
-      run: |
-        cd ${{ github.workspace }}/apk_output
-        zip -r v2rayNG-apk.zip *.apk
-        ls -lah v2rayNG-apk.zip
-
-    - name: Upload APK Archive
-      uses: actions/upload-artifact@v7
+    - name: Upload universal APK
+      uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: v2rayNG-apk
-        path: ${{ github.workspace }}/apk_output/v2rayNG-apk.zip
+        name: v2rayNG-universal-apk
+        path: ${{ env.APK_FILE }}
 
     - name: Upload to release
       uses: svenstaro/upload-release-action@v2
       if: github.event.inputs.release_tag != ''
       with:
-        file: ${{ github.workspace }}/apk_output/v2rayNG-apk.zip
+        file: ${{ env.APK_FILE }}
         tag: ${{ github.event.inputs.release_tag }}
         prerelease: true
