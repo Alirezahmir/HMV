@@ -1,3 +1,6 @@
+private fun envOrDefault(name: String, default: String): String =
+    System.getenv(name).orEmpty().ifBlank { default }
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -41,9 +44,9 @@ android {
     signingConfigs {
         create("release") {
             storeFile = rootProject.projectDir.parentFile.resolve("release/hmalirezRelease.jks")
-            storePassword = System.getenv("SIGNING_STORE_PASSWORD") ?: "Hmalirez2026Store!"
-            keyAlias = System.getenv("SIGNING_KEY_ALIAS") ?: "hmalirezReleaseKey"
-            keyPassword = System.getenv("SIGNING_KEY_PASSWORD") ?: "Hmalirez2026Key!"
+            storePassword = envOrDefault("SIGNING_STORE_PASSWORD", "Hmalirez2026Store!")
+            keyAlias = envOrDefault("SIGNING_KEY_ALIAS", "hmalirezReleaseKey")
+            keyPassword = envOrDefault("SIGNING_KEY_PASSWORD", "Hmalirez2026Key!")
         }
     }
 
